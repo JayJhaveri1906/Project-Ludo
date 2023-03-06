@@ -1,7 +1,11 @@
-created basic skeleton and rollDice function
+The game works in cli.
 
-add classes/split in file
+For human just run the Game.py.
 
-do whatev :)
-
-decide on whatsapp?
+To add:
+1. Algorithms to work based on the given states.
+	1. Random
+	2. Fast
+	3. Agressive
+	4. Defensive
+	5. Mixed

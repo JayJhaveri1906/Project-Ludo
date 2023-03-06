@@ -182,8 +182,6 @@ class Board:
         globalPos = localPos + self.referenceDiff[playerNo]
         return globalPos
 
-    def movePlayer(self, playerId, pawnId):
-        pass
 
     def printState(self, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
         print()
@@ -213,8 +211,15 @@ class Board:
         print("Dice Roll", diceNo)
 
 
+    # TODO reward and risk function
+    def get_reward(self, playerNo, pawnNo):
+        # TODO: reward function for that pawn
+        pass
 
 
+    def get_reward(self, playerNo, pawnNo):
+        # TODO: risk function for that pawn
+        pass
 
 
 
@@ -223,11 +228,11 @@ if __name__ == "__main__":
     players = int(input("Enter Number of Players: "))
     pawns = int(input("Enter Number of Pawns per Player: "))
 
-    Game = Board(players, pawns)
-    Game.getNewState()
+    game = Board(players, pawns)
+    # game.getNewState()
 
     while True:
-        myPlayer, boardDict, safeSpots, referenceDiff, diceNo = Game.getNewState()
-        Game.printState(myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
+        myPlayer, boardDict, safeSpots, referenceDiff, diceNo = game.getNewState()
+        game.printState(myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
         p = input("Enter which pawn do you want to move?")
-        Game.movePawn(int(p), diceNo)
+        game.movePawn(int(p), diceNo)
