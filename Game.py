@@ -94,6 +94,8 @@ class Board:
 
 
     def movePawn(self, pawnNo, diceNo):
+        killed = False
+
         playerChance = self.turn_number % self.noOfPlayers  # which player's chance?
 
 
@@ -166,13 +168,16 @@ class Board:
                             if playerId != myPawn.playerId:
                                 self.players[playerId][1][pawnId].reset()
                                 self.boardDict[gPos].discard((playerId, pawnId))
+                                killed = True
 
 
                 self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
 
 
+        if killed == True:
+            print("You killed peops bruh jod")
 
-        if diceNo != 6:
+        if diceNo != 6 and killed == False:
             self.turn_number += 1  # proceed to next chance
 
 
@@ -211,15 +216,6 @@ class Board:
         print("Dice Roll", diceNo)
 
 
-    # TODO reward and risk function
-    def get_reward(self, playerNo, pawnNo):
-        # TODO: reward function for that pawn
-        pass
-
-
-    def get_reward(self, playerNo, pawnNo):
-        # TODO: risk function for that pawn
-        pass
 
 
 
