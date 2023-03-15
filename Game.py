@@ -118,15 +118,14 @@ class Board:
             elif myPawn.si >= 1 or myPawn.si <= 5:  #
                 print("inside home stretch")
                 newSi = myPawn.si + diceNo
+                if(newSi > 6):
+                    print("Invalid Move, can't go beyond home")
                 if newSi == 6:
                     print("Reached home bitch")
                     self.finished[myPawn.playerId] += 1
                     if self.finished[myPawn.playerId] == self.noOfPPP:
                         print(myPawn.playerId, "player Won")
-                elif newSi >= 6:
-                    print("Invalid Move, can't go beyond home")
-                else:
-                    myPawn.si = newSi
+                myPawn.si = newSi
 
             elif myPawn.si == 6:
                 print("Already Home Bruh, loose chance then")
