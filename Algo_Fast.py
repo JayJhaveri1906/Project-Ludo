@@ -7,24 +7,17 @@ def fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     # TODO: you may use the game.get_reward and game.get_risk functions
     localpawns = []
     if (not localpawns):
-        print("Hi")
         for pawn in myPlayer[1]:
-            if (pawn.pi == -1 and pawn.si + diceNo > 6):
+            if (pawn.pi > (game.boardSize - 2)):
                 continue
             localpawns.append(pawn)
 
     if (not localpawns):
         return -1
-    print([(pawn.si, pawn.si + diceNo) for pawn in localpawns])
+
     max_pawn = localpawns[0]
     for pawn in localpawns:
-        if (pawn.pi == -1 and pawn.si > 0 and max_pawn.pi != -1):
-            max_pawn = pawn
-            continue
-        if (pawn.pi == -1 and max_pawn.pi == -1 and pawn.si > max_pawn.si):
-            max_pawn = pawn
-            continue
-        if (pawn.pi != -1 and max_pawn.pi != -1 and pawn.pi > max_pawn.pi):
+        if (pawn.pi > max_pawn.pi):
             max_pawn = pawn
 
     return max_pawn.pawnId

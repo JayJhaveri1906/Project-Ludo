@@ -10,22 +10,13 @@ class Player:
 
 
 class Pawn:
-    def __init__(self, pid, pawnNo, sixReqd):
+    def __init__(self, pid, pawnNo):
         self.playerId = pid  # whos pawn is it?
         self.pawnId = pawnNo  # pawn number of that player
-        self.pi = -1  # main position (-1: special)
-        self.si = 0  # supplemental position (0: start base, 1-5: home stretch, 6: home
-        self.sixReqd = sixReqd
-        if not self.sixReqd:
-            self.pi = 0
-            self.si = 0
+        self.pi = 0
 
     def reset(self):  # when killed
-        self.pi = -1
-        self.si = 0
-        if not self.sixReqd:
-            self.pi = 0
-            self.si = 0
+        self.pi = 0
 
 
 class Board:
@@ -44,8 +35,6 @@ class Board:
         self.safeSpots = set()
 
         self.finished = defaultdict(int)
-        self.homeStretch = False
-        self.sixReqd = False
 
         self.players = []
         pid = 0  # tmp counter
@@ -56,15 +45,14 @@ class Board:
             pawns = []
             pawnId = 0
             for j in range(noOfPawnPerPlayer):
-                pawns.append(Pawn(pid, pawnId, self.sixReqd))  # array of pawn objects for that player
-                if not self.sixReqd:
-                    gPos = self.getGlobalPos(pid, 0)
-
-                    self.boardDict[gPos].add((pid, pawnId))
+                pawns.append(Pawn(pid, pawnId))  # array of pawn objects for that player
+                gPos = self.getGlobalPos(pid, 0)
+                self.boardDict[gPos].add((pid, pawnId))
                 pawnId += 1
 
             safe_spot = self.getGlobalPos(pid, 0) + 8  # Creates safe pots at startPos + 8 positions
             self.safeSpots.add(safe_spot)
+            self.safeSpots.add(self.getGlobalPos(pid, 0))   # And also at startPos
 
             self.players.append((player, pawns))  # array of tuple of (playerObject, pawnObjectsArray) datastructure
 
@@ -104,78 +92,32 @@ class Board:
 
         myPawn = self.players[playerChance][1][pawnNo]  # which pawn did the player select?
 
-        if myPawn.pi == -1:  # special condition
-
-            if not self.homeStretch:
-                print("Invalid move brother HOME STRECH is disabled, check your algorithm")
-            else:
-                if myPawn.si == 0:  # start pos
-                    if diceNo == 6:
-                        myPawn.pi = 0
-                        gPos = self.getGlobalPos(playerChance, myPawn.pi)
-
-                        self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
-                    else:
-                        print("Can't move out bruh for dice no:", diceNo)
-                        # TODO: implement that you cannot select this guy....
-                        # not implementing it, decided to use it as a skip turn...
-                        # prob don't send them to the algo.
-                elif myPawn.si >= 1 or myPawn.si <= 5:  #
-                    print("inside home stretch")
-                    newSi = myPawn.si + diceNo
-                    if (newSi > 6):
-                        print("Invalid Move, can't go beyond home")
-                    if newSi == 6:
-                        print("Reached home bitch")
-                        self.finished[myPawn.playerId] += 1
-                        if self.finished[myPawn.playerId] == self.noOfPPP:
-                            print(myPawn.playerId, "player Won")
-                    myPawn.si = newSi
-
-                elif myPawn.si == 6:
-                    print("Already Home Bruh, loose chance then")
-                    # self.finished[myPawn.playerId] += 1
-                    # if self.finished[myPawn.playerId] == self.noOfPPP:
-                    #     print(myPawn.playerId, "player Won")
+        newPos = myPawn.pi + diceNo
+        if newPos >= self.boardSize - 1:    # Don't step on the last square anyway
+            # Discard the player from global Dict
+            gPos = self.getGlobalPos(playerChance, myPawn.pi)
+            self.boardDict[gPos].discard((myPawn.playerId, myPawn.pawnId))
+            self.finished[myPawn.playerId] += 1
+            myPawn.pi = newPos
 
         else:
-            newPos = myPawn.pi + diceNo
-            if newPos >= self.boardSize:
-                # Discard the player from global Dict
-                gPos = self.getGlobalPos(playerChance, myPawn.pi)
-                self.boardDict[gPos].discard((myPawn.playerId, myPawn.pawnId))
+            gPos = self.getGlobalPos(playerChance, myPawn.pi)  # get current pos
+            self.boardDict[gPos].discard((myPawn.playerId, myPawn.pawnId))  # remove from curr pos
 
-                myPawn.pi = -1  # convert to special cond
+            gPos += diceNo  # get new gPos
+            myPawn.pi += diceNo  # update the primary location (all checks done before)
 
-                if not self.homeStretch:
-                    self.finished[myPawn.playerId] += 1
-                else:
+            # Check if safe spot
+            if gPos not in self.safeSpots and gPos not in self.referenceDiff:  # if in safeSpots or the initial spawn safe spots, ez add no check
+                # if not safe Spot
+                if len(self.boardDict[gPos]) != 0:  # if collision:
+                    for playerId, pawnId in list(self.boardDict[gPos]):
+                        if playerId != myPawn.playerId:
+                            self.players[playerId][1][pawnId].reset()
+                            self.boardDict[gPos].discard((playerId, pawnId))
+                            killed = True
 
-                    myPawn.si = newPos - self.boardSize + 1  # Calc pos in homeStretch
-
-                    if myPawn.si == 6:
-                        print("reached Home")
-                        self.finished[myPawn.playerId] += 1
-
-            else:
-                gPos = self.getGlobalPos(playerChance, myPawn.pi)  # get current pos
-                self.boardDict[gPos].discard((myPawn.playerId, myPawn.pawnId))  # remove from curr pos
-
-                gPos += diceNo  # get new gPos
-                myPawn.pi += diceNo  # update the primary location (all checks done before)
-
-                # Check if safe spot
-                if gPos not in self.safeSpots and gPos not in self.referenceDiff:  # if in safeSpots or the initial spawn safe spots, ez add no check
-                    # if not safe Spot
-                    if len(self.boardDict[gPos]) != 0:  # if collision:
-
-                        for playerId, pawnId in list(self.boardDict[gPos]):
-                            if playerId != myPawn.playerId:
-                                self.players[playerId][1][pawnId].reset()
-                                self.boardDict[gPos].discard((playerId, pawnId))
-                                killed = True
-
-                self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
+            self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
 
         if killed:
             print("You killed peops bruh jod")
@@ -194,9 +136,9 @@ class Board:
         return -1
 
     def getGlobalPos(self, playerNo, localPos):
-        if localPos == -1:
+        if localPos == -1 or localPos > (self.boardSize - 2):
             return localPos
-        globalPos = localPos + self.referenceDiff[playerNo]
+        globalPos = (localPos + self.referenceDiff[playerNo])%52
         return globalPos
 
     def printState(self, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
@@ -210,7 +152,7 @@ class Board:
         print("Pawn details:")
         for pawn in currPawns:
             print("Pawn Number", pawn.pawnId)
-            print("Local positions", pawn.pi, pawn.si)
+            print("Local positions", pawn.pi)
             print("Global positions", self.getGlobalPos(pawn.playerId, pawn.pi))
             print("_" * 5)
 
