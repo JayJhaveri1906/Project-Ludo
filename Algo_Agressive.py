@@ -5,8 +5,6 @@ import time
 
 
 def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
-    # TODO: algorithm
-    # TODO: you may use the game.get_reward and game.get_risk functions
     # My Priority in Agressiveness
     ##  1) If instant kill, then kill
     ##      a) Have weighted kills (smart aggressive) cancel here
@@ -21,11 +19,14 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     def calcKillMetric(pawn):
         if pawn.pi > (game.boardSize - 2):  # removes in active pawns
             return -1
+
         gpos = game.getGlobalPos(pawn.playerId, pawn.pi+diceNo)  # get new position in gPos
 
         end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
 
-        if gpos > end_pos_of_pawn: # finishes the game
+        # if gposCurr < end_pos_of_pawn and gpos > end_pos_of_pawn: # finishes the game
+        #     return -1
+        if (pawn.pi + diceNo) > (game.boardSize - 2):
             return -1
 
         enemy_count = 0
@@ -40,23 +41,28 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     # Calculates chase potential
     # Chase metric: find first opp pawn, if dist > diceroll, then a chase is possible
     def calcChaseMetric(pawn):
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
+        # gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
 
 
-        end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
+        # end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
+        end_pos_of_pawn = game.boardSize - 2
+        # print("pid, pawnId, pi", pawn.playerId, pawn.pawnId, pawn.pi)
+        # print("gpos, endpos", gpos, end_pos_of_pawn)
 
-        cnt = gpos+1
+        cnt = pawn.pi
         while cnt <= end_pos_of_pawn:
+            # print(cnt, end=" ")
+            gpos = game.getGlobalPos(pawn.playerId, cnt)
             for pawnsPos in boardDict[gpos]:
                 pid = pawnsPos[0]
                 if pid != pawn.playerId:
                     break
             cnt += 1
-
-        if cnt > end_pos_of_pawn: # didn't find any enemy pawn
+        # print("\n")
+        if cnt > end_pos_of_pawn:  # didn't find any enemy pawn
             return -1
         else:
-            dist = cnt - gpos
+            dist = cnt - pawn.pi
             if dist > diceNo:
                 return 1
             return -1
@@ -102,6 +108,7 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
                 continue
 
             possibleChasers.append(pawn.pawnId)  # store the pawn id according to its potential
+            print()
 
         if possibleChasers == []:
             pawnToMove = fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
@@ -146,7 +153,9 @@ if __name__ == "__main__":
         # game.printState(myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
 
         # print("Dice roll:",diceNo)
+        print(myPlayer[0].C)
         p = agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
+        # print("Turn over")
         done = game.movePawn(int(p), diceNo)
         if done > -1:
             print("Player", done, "Won")

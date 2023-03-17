@@ -61,15 +61,16 @@ def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 
 def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP):
     pos = pawnP.pi
-    if (pos > (game.boardSize - 2)):
-        return 0
+
     p_alive = 1 
-    for i in range(1,7):
-        if boardDict[(pos - i)%52] != set():                     ## BUG? - Checking behind in global pos without %52?
-            for elem in boardDict[(pos - i)%52]:
+    for i in range(1, 7):
+        if boardDict[(pos - i) % 52] != set():                     ## BUG? - Checking behind in global pos without %52?
+            for elem in boardDict[(pos - i) % 52]:
                 if elem[0] == pawnP.playerId:
                     continue
-                if elem!= (pawnP.playerId, pawnP.pawnId):   ## BUG? - Checking if elem is not pawn itself? Why? Check if not other pawn of same player. Also, check if that pawn is going to go into its own home before striking. In that case also ignore
+                if elem!= (pawnP.playerId, pawnP.pawnId):   # # BUG? - Checking if elem is not pawn itself? Why?
+                    # Check if not other pawn of same player. Also, check if that pawn is going to go into its own
+                    # home before striking. In that case also ignore
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
