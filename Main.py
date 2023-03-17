@@ -10,7 +10,7 @@ runCount = 10000
 winners = []
 
 ## Config - [pawns per player, strategy1, strategy2, ...]
-config = [4, fastAlgo, fastAlgo, fastAlgo, fastAlgo]
+config = [4, randomAlgo, fastAlgo, fastAlgo, agressiveAlgo]
 
 if __name__ == "__main__":
     strategies = [humanAlgo, randomAlgo, fastAlgo, agressiveAlgo, defensiveAlgo, mixAlgo]
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             done = game.movePawn(int(p), diceNo)
             if done > -1:
                 winners.append(done)
-                print("Player", done, "Won")
+                # print("Player", done, "Won")
                 break
     
     print("\n\nWINNERS:")
