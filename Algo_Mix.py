@@ -56,6 +56,8 @@ def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 
     return pawnToMove
 
+
+
 def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP):
     pos = pawnP.pi
     if (pos > (game.boardSize - 2)):
@@ -64,7 +66,7 @@ def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
     for i in range(1,7):
         if boardDict[pos + i] != set():
             for elem in boardDict[pos + i]:
-                if elem[0]!= pawnP.playerId:
+                if elem!= (pawnP.playerId, pawnP.pawnId):
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
@@ -80,7 +82,7 @@ def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
     for i in range(1,7):
         if boardDict[pos + i] != set():
             for elem in boardDict[pos + i]:
-                if elem[0]!= pawnP.playerId:
+                if elem!= (pawnP.playerId, pawnP.pawnId):
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
@@ -94,8 +96,9 @@ def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     for i in range(1, 7):
         if boardDict[pos + i] != set():
             for elem in boardDict[pos + i]:
-                if elem[0] != pawnP.playerId:
-                    reward += kill_board[str(i)] * elem.pi
+                if elem!= (pawnP.playerId, pawnP.pawnId):
+                    player_of_pawn = game.players[elem[0]][1]
+                    reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
     return reward
 
 
@@ -110,11 +113,12 @@ def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     for i in range(0, 7):
         if boardDict[pos + i] != set():
             for elem in boardDict[pos + i]:
-                if elem[0] != pawnP.playerId:
+                if elem!= (pawnP.playerId, pawnP.pawnId):
                     if i == 0:
                         reward += 3.5
                     else:
-                        reward += kill_board[str(i)] * elem.pi
+                        player_of_pawn = game.players[elem[0]][1]
+                        reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
     return reward + diceNo
 
 
