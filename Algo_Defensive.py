@@ -8,8 +8,9 @@ def defensiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 
     def oppPawn(pawnobj):
         gpos = game.getGlobalPos(pawnobj.pawnId , pawnobj.pi)
-        if gpos  > game.boardSize - 2:
+        if (pawnobj.pi) > (game.boardSize - 2):
             return -1
+
         temp = gpos-1
 
         while(temp >= 0):
@@ -32,27 +33,30 @@ def defensiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
             return gpos - temp
 
     def danger_risk(dist):
-        return 1/6*(1/2**(dist%6))
+        return 1/6*(1/2**(dist % 6))
 
     ## reusing chase
     def calcSafeMove(pawn):
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
-        if gpos  > game.boardSize - 2:
-            return -1
-        end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
+        # gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
+        # if (pawn.pi) > (game.boardSize - 2):
+        #     return -1
 
-        cnt = gpos + 1
+        end_pos_of_pawn = game.boardSize - 2
+
+        cnt = pawn.pi
         while cnt <= end_pos_of_pawn:
+            # print(cnt, end=" ")
+            gpos = game.getGlobalPos(pawn.playerId, cnt)
             for pawnsPos in boardDict[gpos]:
                 pid = pawnsPos[0]
                 if pid != pawn.playerId:
                     break
             cnt += 1
-
+        # print("\n")
         if cnt > end_pos_of_pawn:  # didn't find any enemy pawn
             return -1
         else:
-            dist = cnt - gpos
+            dist = cnt - pawn.pi
             if dist > diceNo:
                 return 1
             return -1

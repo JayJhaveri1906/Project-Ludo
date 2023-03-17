@@ -12,7 +12,7 @@ winners = []
 ## Config - [pawns per player, strategy1, strategy2, ...]
 
 
-config = [4, agressiveAlgo, fastAlgo, fastAlgo, randomAlgo]
+config = [4, defensiveAlgo, fastAlgo, fastAlgo, randomAlgo]
 
 
 if __name__ == "__main__":
