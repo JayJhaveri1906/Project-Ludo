@@ -31,7 +31,7 @@ class Board:
         self.turn_number = 0
         self.referenceDiff = []
 
-        self.boardDict = defaultdict(set)
+        self.boardDict = defaultdict(set)  # (plyaerId, pawnId)
         self.safeSpots = set()
 
         self.finished = defaultdict(int)
@@ -139,7 +139,7 @@ class Board:
     def getGlobalPos(self, playerNo, localPos):
         if localPos == -1 or localPos > (self.boardSize - 2):
             return localPos
-        globalPos = (localPos + self.referenceDiff[playerNo])%52
+        globalPos = (localPos + self.referenceDiff[playerNo]) % 52
         return globalPos
 
     def printState(self, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):

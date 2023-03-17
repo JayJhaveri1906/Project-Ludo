@@ -15,46 +15,60 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 
     # NOTE: Only looking one step into the future currently
     pawnToMove = -1  # Final pawn to move
-    usedFastAsDefault = False  # did you used fast algo as a default
+
 
     # Calculates kill potential
     def calcKillMetric(pawn):
-        if pawn.pi == -1:
+        if pawn.pi > (game.boardSize - 2):  # removes in active pawns
             return -1
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi + diceNo)  # get gPos
+        gpos = game.getGlobalPos(pawn.playerId, pawn.pi+diceNo)  # get new position in gPos
+
+        end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
+
+        if gpos > end_pos_of_pawn: # finishes the game
+            return -1
 
         enemy_count = 0
         if gpos not in safeSpots and gpos not in referenceDiff:  # Check if not on safe spot
-            for pawns in boardDict[gpos]:
-                if pawns.playerId != pawn.playerId:
+            for pawnsPos in boardDict[gpos]:
+                pid = pawnsPos[0]
+                if pid != pawn.playerId:
                     enemy_count += 1  # count how many enemey players you can kill
 
         return enemy_count
 
     # Calculates chase potential
+    # Chase metric: find first opp pawn, if dist > diceroll, then a chase is possible
     def calcChaseMetric(pawn):
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi + diceNo)  # get gPos
-        start_pos_of_pawn = referenceDiff[pawn.playerId]
-        end_pos_of_pawn = start_pos_of_pawn + game.boardSize
+        gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
 
-        dist_between = -1
+
+        end_pos_of_pawn = game.getGlobalPos(pawn.playerId, 50)
+
         cnt = gpos+1
-        while cnt != end_pos_of_pawn:
-            for pawns in boardDict[gpos]:
-                if pawns.playerId != pawn.playerId:
+        while cnt <= end_pos_of_pawn:
+            for pawnsPos in boardDict[gpos]:
+                pid = pawnsPos[0]
+                if pid != pawn.playerId:
                     break
-        # TODO: handle the condition ki basically impleent difference in distance before and after... if decreasing distance then potential is the dist.... basically....
+            cnt += 1
 
+        if cnt > end_pos_of_pawn: # didn't find any enemy pawn
+            return -1
+        else:
+            dist = cnt - gpos
+            if dist > diceNo:
+                return 1
+            return -1
 
-
-        return enemy_count
 
     player = myPlayer[0]  # Extracting player
     pawns = myPlayer[1]  # Extracting the pawns
 
-    dict = defaultdict(list)  # dictionary to store pawn id wrt their potentials
+    playablePawns = defaultdict(list)  # dictionary to store pawn id wrt their potentials
     maxPotential = -1  # max potential to have O(1) access to the max potential pawn
 
+    # Step 1: Checking Instant Kill
     for pawn in pawns:
         potential = calcKillMetric(pawn)  # kill metric
 
@@ -64,41 +78,48 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
         if potential > maxPotential:  # metric > prev Metrics?
             maxPotential = potential
 
-        dict[potential].append(pawn.pawnId)  # store the pawn id according to its potential
+        playablePawns[potential].append(pawn.pawnId)  # store the pawn id according to its potential
+
 
     # NOTE the dict would never be empty when home stretch and six reqd is false
     if maxPotential == -1:  # handles cases when either six is reqd or home stretch is enabled
-        usedFastAsDefault = True
+
         pawnToMove = fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
 
-    elif maxPotential == 0:  # if no kills available, find chase
+    elif maxPotential == 0:  # if no instant kills available, find chase
 
         newPawns = []
-        for pawnId in dict[maxPotential]:  # auto removes any pawns who might have completed the journey of life
+        for pawnId in playablePawns[maxPotential]:  # auto removes any pawns who might have completed the journey of life
             newPawns.append(pawns[pawnId])
 
 
-
+        # Find Pawns valid for Chasing
+        possibleChasers = []
         for pawn in newPawns:
-            potential = calcKillMetric(pawn)  # kill metric
+            canChase = calcChaseMetric(pawn)  # chase metric returns the distance
 
-            if potential == -1:  # check if this pawn has already reached home
+            if canChase == -1:  # check if pawn doesn't chases
                 continue
 
-            if potential > maxPotential:  # metric > prev Metrics?
-                maxPotential = potential
+            possibleChasers.append(pawn.pawnId)  # store the pawn id according to its potential
 
-            dict[potential].append(pawn.pawnId)  # store the pawn id according to its potential
+        if possibleChasers == []:
+            pawnToMove = fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
 
+        else:
+            newPawns = []
+            for pawnId in possibleChasers:  # cutshort the pawns array to only store pawns with the max potential
+                newPawns.append(pawns[pawnId])
 
-        usedFastAsDefault = True
-        pawnToMove = fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
-    else:
-        if len(dict[maxPotential]) == 1:  # check if no clashes on max potential pawn
-            pawnToMove = dict[maxPotential][0]
+            myNewPlayer = (player, newPawns)
+            pawnToMove = fastAlgo(game, myNewPlayer, boardDict, safeSpots, referenceDiff, diceNo)
+
+    else:  # if kill available
+        if len(playablePawns[maxPotential]) == 1:  # check if no clashes on max potential pawn
+            pawnToMove = playablePawns[maxPotential][0]
         else:  # if clash while killing
             newPawns = []
-            for pawnId in dict[maxPotential]:  # cutshort the pawns array to only store pawns with the max potential
+            for pawnId in playablePawns[maxPotential]:  # cutshort the pawns array to only store pawns with the max potential
                 newPawns.append(pawns[pawnId])
 
             myNewPlayer = (player, newPawns)
@@ -122,10 +143,10 @@ if __name__ == "__main__":
         referenceDiff: list of spawn positions which are aso safe Spots
         diceNo: the dice number that came """
 
-        # Game.printState(myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
+        # game.printState(myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
 
         # print("Dice roll:",diceNo)
-        p, _ = agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
+        p = agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo)
         done = game.movePawn(int(p), diceNo)
         if done > -1:
             print("Player", done, "Won")
