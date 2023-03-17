@@ -18,60 +18,67 @@ def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     pawnToMove = -1
     return pawnToMove
 
-def risk(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo,kill_board):
-    pawns = myPlayer[1]  #list of pawns
-    risk_list = []
-    for pawn in pawns:
-        if (pawn.pi > (game.boardSize - 2)):
-            continue
-        p_alive = 1
-        for i in range(1,7):
-            if boardDict[i+1]!=set():
-                for j in boardDict:
-                    if j!=(pawn.playerId,pawn.pawnID):
-                        p_alive *= (1-killboard[i])
-        p_dying = 1 - p_alive
-        risk_pawn = (pawn.pi in safeSpots)*pawn.pi*p_dying
-        risk_list.append((risk_pawn))
+def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board, pawnP):
+    pos = pawnP.pi
+    if (pos > (game.boardSize - 2)):
+        return 0
+    p_alive = 1 
+    for i in range(1,7):
+        if boardDict[pos + i] != set():
+            for elem in boardDict[pos + i]:
+                if elem[0]!= pawnP.playerId:
+                    p_alive *= (1-kill_board[i])
 
-    return risk_list
+    p_dying = 1 - p_alive
+    risk = (pos in safeSpots)*pos*p_dying
+    return risk
 
-# sum starting from 1
-def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board):
+
+def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board, pawnP):
+    pos = pawnP.pi + diceNo
+    if (pos > (game.boardSize - 2)):
+        return diceNo
+    p_alive = 1 
+    for i in range(1,7):
+        if boardDict[pos + i] != set():
+            for elem in boardDict[pos + i]:
+                if elem[0]!= pawnP.playerId:
+                    p_alive *= (1-kill_board[i])
+
+    p_dying = 1 - p_alive
+    risk = (pos in safeSpots)*pos*p_dying
+    return risk + diceNo
+
+def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board, pawnP):
     # Initialize an empty list to store the rewards for each pawn
-    reward_list = []
-    for pawn in myPlayer[1]:
-        if (pawn.pi > (game.boardSize - 2)):
-            continue
-        pos = pawn.pi
-        reward = 0
-        for i in range(1, 7):
-            if boardDict[pos + i] != set():
-                for elem in boardDict[pos + i]:
-                    if elem[0] != pawn.playerId:
-                        reward += kill_board[str(i)] * elem.pi
-        reward_list.append((pawn, reward))
-    return reward_list
+    pos = pawnP.pi 
+    reward = 0
+    for i in range(1, 7):
+        if boardDict[pos + i] != set():
+            for elem in boardDict[pos + i]:
+                if elem[0] != pawnP.playerId:
+                    reward += kill_board[str(i)] * elem.pi
+    return reward
 
 
 # takes dice roll + 3.5 * instantkill (bool) + sum starting from 0
-def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board):
-    reward_list = []
-    for pawn in myPlayer[1]:
-        if (pawn.pi > (game.boardSize - 2)):
-            continue
-        pos = pawn.pi
-        reward = 0
-        for i in range(0, 7):
-            if boardDict[pos + i] != set():
-                for elem in boardDict[pos + i]:
-                    if elem[0] != pawn.playerId:
-                        if i == 0:
-                            reward += (3.5 + diceNo)
-                        else:
-                            reward += kill_board[str(i)] * elem.pi
-        reward_list.append((pawn, reward))
-    return reward_list
+def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board, pawnP):
+    pos = pawnP.pi + diceNo
+
+    if pos > game.BoardSize - 2:
+        return diceNo
+
+    reward = 0
+    for i in range(0, 7):
+        if boardDict[pos + i] != set():
+            for elem in boardDict[pos + i]:
+                if elem[0] != pawnP.playerId:
+                    if i == 0:
+                        reward += 3.5
+                    else:
+                        reward += kill_board[str(i)] * elem.pi
+    return reward + diceNo
+
 
 
 if __name__ == "__main__":
