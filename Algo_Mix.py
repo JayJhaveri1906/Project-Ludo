@@ -70,7 +70,7 @@ def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
-    risk = (pos in safeSpots)*pos*p_dying
+    risk = (pos not in safeSpots)*pos*p_dying
     return risk
 
 
@@ -86,7 +86,7 @@ def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
-    risk = (pos in safeSpots)*pos*p_dying
+    risk = (pos not in safeSpots)*pos*p_dying
     return risk + diceNo
 
 def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP):
