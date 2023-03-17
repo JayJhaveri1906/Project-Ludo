@@ -21,8 +21,7 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     def calcKillMetric(pawn):
         if pawn.pi == -1:
             return -1
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
-        gpos += diceNo  # new pos
+        gpos = game.getGlobalPos(pawn.playerId, pawn.pi + diceNo)  # get gPos
 
         enemy_count = 0
         if gpos not in safeSpots and gpos not in referenceDiff:  # Check if not on safe spot
@@ -34,8 +33,7 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 
     # Calculates chase potential
     def calcChaseMetric(pawn):
-        gpos = game.getGlobalPos(pawn.playerId, pawn.pi)  # get gPos
-        gpos += diceNo  # new pos
+        gpos = game.getGlobalPos(pawn.playerId, pawn.pi + diceNo)  # get gPos
         start_pos_of_pawn = referenceDiff[pawn.playerId]
         end_pos_of_pawn = start_pos_of_pawn + game.boardSize
 
@@ -107,7 +105,7 @@ def agressiveAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
             pawnToMove = fastAlgo(game, myNewPlayer, boardDict, safeSpots, referenceDiff, diceNo)
             # use the fast algo to decide which pawn to move when both have positive and equal potential to kill
 
-    return pawnToMove, usedFastAsDefault
+    return pawnToMove
 
 
 if __name__ == "__main__":

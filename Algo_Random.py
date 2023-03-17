@@ -1,6 +1,6 @@
 from Game import Board
 
-def someAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
+def randomAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     # TODO: algorithm
     # TODO: you may use the game.get_reward and game.get_risk functions
 

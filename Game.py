@@ -104,8 +104,8 @@ class Board:
             gPos = self.getGlobalPos(playerChance, myPawn.pi)  # get current pos
             self.boardDict[gPos].discard((myPawn.playerId, myPawn.pawnId))  # remove from curr pos
 
-            gPos += diceNo  # get new gPos
             myPawn.pi += diceNo  # update the primary location (all checks done before)
+            gPos = self.getGlobalPos(playerChance, myPawn.pi)  # get new gPos
 
             # Check if safe spot
             if gPos not in self.safeSpots:  # if in safeSpots or the initial spawn safe spots, ez add no check
@@ -168,6 +168,13 @@ class Board:
         print("_" * 20)
         print("Dice Roll", diceNo)
 
+def humanAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
+    p = -1
+    while(p not in {0,1,2,3}):
+        p = int(input("Enter which pawn do you want to move?"))
+        if(p not in {0,1,2,3}):
+            print("Enter value between 0 and 3 inclusive")
+    return p
 
 if __name__ == "__main__":
     players = int(input("Enter Number of Players: "))

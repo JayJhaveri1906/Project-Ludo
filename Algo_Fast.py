@@ -1,5 +1,4 @@
 from Game import Board
-import Game
 
 
 def fastAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
