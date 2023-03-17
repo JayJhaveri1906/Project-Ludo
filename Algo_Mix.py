@@ -64,8 +64,8 @@ def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
         return 0
     p_alive = 1 
     for i in range(1,7):
-        if boardDict[pos + i] != set():
-            for elem in boardDict[pos + i]:
+        if boardDict[pos - i] != set():
+            for elem in boardDict[pos - i]:
                 if elem!= (pawnP.playerId, pawnP.pawnId):
                     p_alive *= (1-kill_board[str(i)])
 
@@ -80,8 +80,8 @@ def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
         return 0
     p_alive = 1 
     for i in range(1,7):
-        if boardDict[pos + i] != set():
-            for elem in boardDict[pos + i]:
+        if boardDict[pos - i] != set():
+            for elem in boardDict[pos - i]:
                 if elem!= (pawnP.playerId, pawnP.pawnId):
                     p_alive *= (1-kill_board[str(i)])
 

@@ -10,7 +10,7 @@ runCount = 10000
 winners = []
 
 ## Config - [pawns per player, strategy1, strategy2, ...]
-config = [4, randomAlgo, fastAlgo, fastAlgo, agressiveAlgo]
+config = [2, mixAlgo,agressiveAlgo]
 
 if __name__ == "__main__":
     strategies = [humanAlgo, randomAlgo, fastAlgo, agressiveAlgo, defensiveAlgo, mixAlgo]
