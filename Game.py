@@ -108,7 +108,7 @@ class Board:
             myPawn.pi += diceNo  # update the primary location (all checks done before)
 
             # Check if safe spot
-            if gPos not in self.safeSpots and gPos not in self.referenceDiff:  # if in safeSpots or the initial spawn safe spots, ez add no check
+            if gPos not in self.safeSpots:  # if in safeSpots or the initial spawn safe spots, ez add no check
                 # if not safe Spot
                 if len(self.boardDict[gPos]) != 0:  # if collision:
                     for playerId, pawnId in list(self.boardDict[gPos]):
