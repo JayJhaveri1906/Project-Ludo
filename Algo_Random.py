@@ -1,13 +1,23 @@
 from Game import Board
+import random
 
 def randomAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     # TODO: algorithm
     # TODO: you may use the game.get_reward and game.get_risk functions
 
+    localpawns = []
+    if (not localpawns):
+        for pawn in myPlayer[1]:
+            if (pawn.pi > (game.boardSize - 2)):
+                continue
+            localpawns.append(pawn)
 
-    pawnToMove = -1
-    return pawnToMove
+    if (not localpawns):
+        return -1
 
+
+    random_pawn = random.choice(localpawns)
+    return random_pawn.pawnId
 
 
 if __name__ == "__main__":
