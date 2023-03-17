@@ -75,6 +75,7 @@ class Board:
 
                 safe_spot = self.getGlobalPos(pid, 0) + 8  # Creates safe pots at startPos + 8 positions
                 self.safeSpots.add(safe_spot)
+                self.safeSpots.add(self.getGlobalPos(pid, 0))
 
     def getNewState(self):
         # Things we need to return,
@@ -120,7 +121,7 @@ class Board:
             self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
 
         if killed:
-            print("You killed peops bruh jod")
+            print("You killed peops bruh jod", myPawn.playerId)
 
         ## Uncomment if 6 needed to exit
         # if diceNo != 6 and killed == False:
