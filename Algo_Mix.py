@@ -64,11 +64,10 @@ def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
 
     p_alive = 1 
     for i in range(1, 7):
-        if boardDict[(pos - i) % 52] != set():                     ## BUG? - Checking behind in global pos without %52?
-            for elem in boardDict[(pos - i) % 52]:
-                if elem[0] == pawnP.playerId:
-                    continue
-                if elem!= (pawnP.playerId, pawnP.pawnId):   # # BUG? - Checking if elem is not pawn itself? Why?
+        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
+        if boardDict[gpos] != set():                     ## BUG? - Checking behind in global pos without %52?
+            for elem in boardDict[gpos]:
+                if elem[0] != pawnP.playerId:   # # BUG? - Checking if elem is not pawn itself? Why?
                     # Check if not other pawn of same player. Also, check if that pawn is going to go into its own
                     # home before striking. In that case also ignore
                     p_alive *= (1-kill_board[str(i)])
@@ -84,12 +83,11 @@ def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
     if (pos > (game.boardSize - 2)):
         return 0
     p_alive = 1 
-    for i in range(1,7):
-        if boardDict[(pos - i)%52] != set():
-            for elem in boardDict[(pos - i)%52]:
-                if elem[0] == pawnP.playerId:
-                    continue
-                if elem!= (pawnP.playerId, pawnP.pawnId):      ## BUG? - Same as in risk_curr function
+    for i in range(1, 7):
+        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
+        if boardDict[gpos] != set():
+            for elem in boardDict[gpos]:
+                if elem[0] != pawnP.playerId:      ## BUG? - Same as in risk_curr function
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
@@ -102,16 +100,15 @@ def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     pos = pawnP.pi 
     reward = 0
     for i in range(1, 7):
-        if boardDict[(pos + i)%52] != set():                    ## BUG? If position is a safe spot, no kills possible
-            if((pos + i)%52 in safeSpots):
+        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
+        if boardDict[gpos] != set():                    ## BUG? If position is a safe spot, no kills possible
+            if(gpos in safeSpots):
                 continue
-            for elem in boardDict[(pos + i)%52]:
-                if elem[0] == pawnP.playerId:
-                    continue
-                if elem!= (pawnP.playerId, pawnP.pawnId):       ## BUG? Just what is this check? Refer BUG? in risk_curr function
+            for elem in boardDict[gpos]:
+                if elem[0] != pawnP.playerId:       ## BUG? Just what is this check? Refer BUG? in risk_curr function
                     player_of_pawn = game.players[elem[0]][1]
                     reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
-    return reward
+    return reward*4
 ## SUGGEST return reward*4
 
 
@@ -122,21 +119,21 @@ def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     if pos > game.boardSize - 2:
         return diceNo
 
+
     reward = 0
     for i in range(0, 7):
-        if boardDict[(pos + i)%52] != set():                    ## BUG? If position is a safe spot, no kills possible
-            if((pos + i)%52 in safeSpots):
+        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
+        if boardDict[gpos] != set():                    ## BUG? If position is a safe spot, no kills possible
+            if(gpos in safeSpots):
                 continue
-            for elem in boardDict[(pos + i)%52]:
-                if elem[0] == pawnP.playerId:
-                    continue
-                if elem!= (pawnP.playerId, pawnP.pawnId):   ## BUG? - Again, same thing. Refer risk_curr BUG?
+            for elem in boardDict[gpos]:
+                if elem[0] != pawnP.playerId:
                     if i == 0:
                         reward += 3.5                       ## BUG? - In case of strike, reward includes value of pawn struck, like below. Add the struck pawn's pi. This is choosing not to strike.
                     # else:
                     player_of_pawn = game.players[elem[0]][1]
                     reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
-    return reward
+    return reward*4 + diceNo
 ## SUGGEST return reward*4 + diceNo
 
 ## BUG buggish - reduce risk perception, increase efforts for chase and fast. Also make a slight incentive for actual safespot in risk even without any chasers.
