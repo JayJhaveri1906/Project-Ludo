@@ -120,8 +120,8 @@ class Board:
 
             self.boardDict[gPos].add((myPawn.playerId, myPawn.pawnId))
 
-        if killed:
-            print("You killed peops bruh jod", myPawn.playerId)
+        # if killed:
+        #     print("You killed peops bruh jod", myPawn.playerId)
 
         ## Uncomment if 6 needed to exit
         # if diceNo != 6 and killed == False:
