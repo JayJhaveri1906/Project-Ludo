@@ -9,7 +9,7 @@ kill_board = {
     "5" : 2/12,
     "6" : 1/12
  }
- 
+
 def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     # TODO: algorithm
     # TODO: you may use the game.get_reward and game.get_risk functions
@@ -19,20 +19,19 @@ def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
     return pawnToMove
 
 def risk(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo,kill_board):
-    pawns = myPlayer[1]
+    pawns = myPlayer[1]  #list of pawns
     risk_list = []
     for pawn in pawns:
-        pos = pawn.pi
-        player = pawn.playerId
-        pawn_id = pawn.pawnID
+        if (pawn.pi > (game.boardSize - 2)):
+            continue
         p_alive = 1
         for i in range(1,7):
             if boardDict[i+1]!=set():
                 for j in boardDict:
-                    if j!=(player,pawn_id):
+                    if j!=(pawn.playerId,pawn.pawnID):
                         p_alive *= (1-killboard[i])
         p_dying = 1 - p_alive
-        risk_pawn = (pos in safeSpots)*pos*p_dying
+        risk_pawn = (pawn.pi in safeSpots)*pawn.pi*p_dying
         risk_list.append((risk_pawn))
 
     return risk_list
@@ -42,6 +41,8 @@ def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kil
     # Initialize an empty list to store the rewards for each pawn
     reward_list = []
     for pawn in myPlayer[1]:
+        if (pawn.pi > (game.boardSize - 2)):
+            continue
         pos = pawn.pi
         reward = 0
         for i in range(1, 7):
@@ -57,6 +58,8 @@ def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kil
 def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, kill_board):
     reward_list = []
     for pawn in myPlayer[1]:
+        if (pawn.pi > (game.boardSize - 2)):
+            continue
         pos = pawn.pi
         reward = 0
         for i in range(0, 7):
