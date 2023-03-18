@@ -6,13 +6,13 @@ from Algo_Mix import mixAlgo
 from Game import Board, humanAlgo
 
 config = []
-runCount = 10000
+runCount = 1000
 winners = []
 
 ## Config - [pawns per player, strategy1, strategy2, ...]
 
 
-config = [4, mixAlgo, agressiveAlgo, fastAlgo, randomAlgo]
+config = [4, agressiveAlgo, agressiveAlgo, agressiveAlgo, mixAlgo]
 
 
 if __name__ == "__main__":

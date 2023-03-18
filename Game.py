@@ -139,8 +139,16 @@ class Board:
     def getGlobalPos(self, playerNo, localPos):
         if localPos == -1 or localPos > (self.boardSize - 2):
             return localPos
-        globalPos = (localPos + self.referenceDiff[playerNo]) % 52
+        globalPos = (localPos + self.referenceDiff[playerNo]) % self.boardSize
         return globalPos
+
+
+    def getLocalPos(self, playerNo, gpos):
+        if gpos > self.boardSize:
+            sys.exit("gpos can't be > board size")
+        localPos = (gpos - self.referenceDiff[playerNo]) % self.boardSize
+        return localPos
+
 
     def printState(self, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
         print()

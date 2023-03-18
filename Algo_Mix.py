@@ -1,5 +1,6 @@
 from Game import Board
 from Algo_Fast import fastAlgo
+from Algo_Agressive import agressiveAlgo
 from collections import defaultdict
 
 kill_board = {
@@ -62,19 +63,24 @@ def mixAlgo(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo):
 def risk_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP):
     pos = pawnP.pi
 
-    p_alive = 1 
+    p_alive = 1
+    currPos = game.getGlobalPos(pawnP.playerId, pos)
     for i in range(1, 7):
-        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
-        if boardDict[gpos] != set():                     ## BUG? - Checking behind in global pos without %52?
+        gpos = (currPos - i) % game.boardSize
+        if boardDict[gpos] != set():
             for elem in boardDict[gpos]:
-                if elem[0] != pawnP.playerId:   # # BUG? - Checking if elem is not pawn itself? Why?
-                    # Check if not other pawn of same player. Also, check if that pawn is going to go into its own
-                    # home before striking. In that case also ignore
+                if elem[0] != pawnP.playerId:
+                    # to get local comparision,, avoiding complicated %52 BS:
+                    currPosLocal = game.getLocalPos(elem[0], currPos)
+                    enemy_home_lpos = game.boardSize -2
+                    lpos = game.getLocalPos(elem[0], gpos)
+                    if currPosLocal > enemy_home_lpos > lpos:
+                        continue
                     p_alive *= (1-kill_board[str(i)])
 
     p_dying = 1 - p_alive
-    risk = (pos not in safeSpots)*pos*p_dying
-    ## SUGGEST risk = (pos not in safeSpots)*pos*p_dying*0.5 + 1*(pos not in safeSpots)
+    # risk = (pos not in safeSpots)*pos*p_dying
+    risk = (pos not in safeSpots)*pos*p_dying*0.5 + 1*(pos not in safeSpots)
     return risk
 
 
@@ -82,18 +88,25 @@ def risk_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP
     pos = pawnP.pi + diceNo
     if (pos > (game.boardSize - 2)):
         return 0
-    p_alive = 1 
+    p_alive = 1
+    currPos = game.getGlobalPos(pawnP.playerId, pos)
     for i in range(1, 7):
-        gpos = game.getGlobalPos(pawnP.playerId, pos + i)
+        gpos = (currPos - i) % game.boardSize
         if boardDict[gpos] != set():
             for elem in boardDict[gpos]:
-                if elem[0] != pawnP.playerId:      ## BUG? - Same as in risk_curr function
-                    p_alive *= (1-kill_board[str(i)])
+                if elem[0] != pawnP.playerId:
+                    # to get local comparision,, avoiding complicated %52 BS:
+                    currPosLocal = game.getLocalPos(elem[0], currPos)
+                    enemy_home_lpos = game.boardSize - 2
+                    lpos = game.getLocalPos(elem[0], gpos)
+                    if currPosLocal > enemy_home_lpos > lpos:  # if enemy's home before us, ignore!
+                        continue
+                    p_alive *= (1 - kill_board[str(i)])
 
     p_dying = 1 - p_alive
-    risk = (pos not in safeSpots)*pos*p_dying
-    ## SUGGEST risk = (pos not in safeSpots)*pos*p_dying*0.5 + 1*(pos not in safeSpots)
-    return risk                ## BUG? - Why diceNo?
+    # risk = (pos not in safeSpots)*pos*p_dying
+    risk = (pos not in safeSpots)*pos*p_dying*0.5 + 1*(pos not in safeSpots)
+    return risk
 
 def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, pawnP):
     # Initialize an empty list to store the rewards for each pawn
@@ -101,15 +114,12 @@ def reward_curr(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     reward = 0
     for i in range(1, 7):
         gpos = game.getGlobalPos(pawnP.playerId, pos + i)
-        if boardDict[gpos] != set():                    ## BUG? If position is a safe spot, no kills possible
-            if(gpos in safeSpots):
-                continue
+        if boardDict[gpos] != set():
             for elem in boardDict[gpos]:
-                if elem[0] != pawnP.playerId:       ## BUG? Just what is this check? Refer BUG? in risk_curr function
+                if elem[0] != pawnP.playerId:
                     player_of_pawn = game.players[elem[0]][1]
                     reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
-    return reward*4
-## SUGGEST return reward*4
+    return reward
 
 
 # takes dice roll + 3.5 * instantkill (bool) + sum starting from 0
@@ -123,20 +133,17 @@ def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
     reward = 0
     for i in range(0, 7):
         gpos = game.getGlobalPos(pawnP.playerId, pos + i)
-        if boardDict[gpos] != set():                    ## BUG? If position is a safe spot, no kills possible
-            if(gpos in safeSpots):
-                continue
+        if boardDict[gpos] != set():
             for elem in boardDict[gpos]:
                 if elem[0] != pawnP.playerId:
                     if i == 0:
-                        reward += 3.5                       ## BUG? - In case of strike, reward includes value of pawn struck, like below. Add the struck pawn's pi. This is choosing not to strike.
+                        reward += 3.5
                     # else:
                     player_of_pawn = game.players[elem[0]][1]
                     reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
-    return reward*4 + diceNo
-## SUGGEST return reward*4 + diceNo
+    return reward + diceNo*2
 
-## BUG buggish - reduce risk perception, increase efforts for chase and fast. Also make a slight incentive for actual safespot in risk even without any chasers.
+
 
 if __name__ == "__main__":
     players = int(input("Enter Number of Players: "))
