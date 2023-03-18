@@ -9,8 +9,7 @@ config = []
 runCount = 1000
 winners = []
 
-## Config - [pawns per player, strategy1, strategy2, ...]
-
+# Config - [pawns per player, strategy1, strategy2, ...]
 
 config = [4, agressiveAlgo, agressiveAlgo, agressiveAlgo, mixAlgo]
 

@@ -141,7 +141,7 @@ def reward_next(game, myPlayer, boardDict, safeSpots, referenceDiff, diceNo, paw
                     # else:
                     player_of_pawn = game.players[elem[0]][1]
                     reward += kill_board[str(i)] * player_of_pawn[elem[1]].pi
-    return reward + diceNo*2
+    return reward + diceNo
 
 
 
