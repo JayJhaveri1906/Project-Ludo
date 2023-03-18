@@ -8,8 +8,9 @@ The game is played on a squared grid, having 72 boxes (52 of which are common to
 We decided to analyze algorithmically the game Ludo, because it involves an array of strategic decisions and tradeoffs at every move of a pawn. Players must decide which pawn to move and how to threaten their opponents strategically. The players also have numerous trade offs while playing some of them being, keep on chasing an opponent’s pawn and save another pawn from being chased, take an instant kill when available or continue chasing an opponent’s pawn that’s about the get to the destination and many other interesting scenarios. In addition to that, there’s also a randomness element, represented by the dice roll, which adds another layer of uncertainty and complexity to the game.
 
 <p align="center">
-  ![Ludo Board](docs/ludo.png)
+  ![Ludo Board](https://user-images.githubusercontent.com/53606587/226078385-97e912e6-24bf-47e5-8665-35cbe51171a8.png)
 </p>
+
 
 
 
